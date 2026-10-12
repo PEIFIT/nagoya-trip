@@ -568,11 +568,13 @@ function renderOverview() {
       '<dt>名古屋住宿</dt><dd>' + esc(HOTEL.name) + '<br>' + telLink(HOTEL.tel, HOTEL.telShow) + '</dd>' +
       '<dt>高山住宿</dt><dd>' + esc(TAKAYAMA.name) + '<br>' + telLink(TAKAYAMA.tel, TAKAYAMA.telShow) + '</dd></dl></section>' +
     '<section class="card" id="l-shop"></section>' +
+    (STANDALONE ? '<section class="card"><h3>資料管理</h3><div class="hint">記帳（公帳、個人）、購物與伴手禮清單的資料，都只存在這支手機的瀏覽器。出發前可以一次清掉測試資料。</div><button class="btn ghost" id="clr-all" type="button">清除記帳與清單資料</button></section>' : '') +
     '<section class="card"><h3>每日一覽</h3><ul class="dlist">' + TRIP.days.map((d, i) => { const dt = dayDate(i);
       return '<li><button class="dbtn" data-i="' + i + '"><span class="n">D' + (i+1) + '</span><span class="t">' + esc(d.title) + '</span><span class="s">' + (dt.getMonth()+1) + '/' + dt.getDate() + '（' + WD[dt.getDay()] + '）' + (d.stay ? ' · 住 ' + (d.stay === TAKAYAMA ? '高山' : '名古屋') : '') + '</span></button></li>'; }).join("") + '</ul></section>';
   document.querySelectorAll(".chk").forEach(c => c.addEventListener("change", () => { const o = loadTodo(); o[c.dataset.id] = c.checked; saveTodo(o); }));
   document.querySelectorAll(".dbtn").forEach(b => b.addEventListener("click", () => go(+b.dataset.i)));
   L.shopBuilt = false; shopRefresh();
+  const clr = $("clr-all"); if (clr) clr.addEventListener("click", () => { if (confirm("要清除所有記帳（公帳、個人）和購物與伴手禮清單的資料嗎？清除後無法復原。")) { try { localStorage.removeItem("nagoya-local-db"); } catch (e) {} location.reload(); } });
 }
 
 const WXI = {
