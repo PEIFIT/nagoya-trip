@@ -100,6 +100,10 @@ svg.ic { width: 1.1em; height: 1.1em; fill: none; stroke: currentColor; stroke-w
 .chk { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex: none; }
 .todo span { min-width: 0; overflow-wrap: anywhere; }
 .todo input:checked + span { color: var(--muted); text-decoration: line-through; }
+.todo li { display: flex; align-items: flex-start; }
+.todo li label { flex: 1; }
+.tadd { display: flex; gap: 8px; margin-top: 10px; }
+.tadd .btn { flex: none; padding: 8px 16px; }
 .hint { font-size: .75rem; color: var(--muted); margin: 0; }
 
 .kv { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 2px 12px; font-size: .9375rem; }
@@ -293,6 +297,8 @@ input:focus-visible, select:focus-visible, .btn:focus-visible, .sb:focus-visible
 .shl li.dn b, .shl li.dn small { text-decoration: line-through; color: var(--muted); }
 #sh-form { margin-top: 6px; }
 .res .links { display: flex; gap: 8px; align-items: center; }
+.shpv { grid-column: 1 / -1; max-width: 100%; max-height: 160px; object-fit: contain; border-radius: 8px; justify-self: start; }
+.phbtn { flex: none; font-size: .8125rem; color: var(--accent); padding: 6px 4px; }
 .shotbtn { font: inherit; border: 0; background: none; padding: 0; cursor: pointer; text-decoration: underline; }
 .shotov { position: fixed; inset: 0; z-index: 50; background: rgba(30, 18, 8, .72); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .shotbox { background: var(--surface, #fff); border-radius: 16px; padding: 12px; max-width: 520px; width: 100%; display: flex; flex-direction: column; gap: 10px; max-height: 100%; overflow: auto; }
@@ -403,7 +409,7 @@ const TAKAYAMA = { name: "桑雅博爾恩旅舍 Thai Restaurant & Guest House TH
 const TRIP = {
   start: "2026-11-05",      // 第 1 天的日期（YYYY-MM-DD）
   isSample: true,           // 換成實際行程後改成 false
-  updated: "2026-10-13 09:00",
+  updated: "2026-10-15 07:00",
   weatherSrc: "平年值，非預報",
   days: [
     { title: "抵達夜", route: ["airport","nagoya"], weather: { items: [{ p: "名古屋", lo: 8, hi: 17, icon: "suncloud", short: "晴時多雲", desc: "晴時多雲居多，偏乾" }], tip: "夜間約 10°C 上下，帶薄外套" }, stay: HOTEL, note: "傍晚才落地，今晚只要平安進飯店、吃點東西", stops: [
@@ -595,10 +601,12 @@ function mapSvg(route) {
 
 function loadTodo() { try { return JSON.parse(localStorage.getItem("nagoya-todo") || "{}") || {}; } catch (e) { return {}; } }
 function saveTodo(o) { try { localStorage.setItem("nagoya-todo", JSON.stringify(o)); } catch (e) {} }
+function loadMyTodo() { try { const a = JSON.parse(localStorage.getItem("nagoya-todo-mine") || "[]"); return Array.isArray(a) ? a.filter(x => x && x.id && x.t) : []; } catch (e) { return []; } }
+function saveMyTodo(a) { try { localStorage.setItem("nagoya-todo-mine", JSON.stringify(a)); } catch (e) {} }
 
 function showShot(r) {
-  const ov = document.createElement("div"); ov.className = "shotov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-label", "訂位截圖");
-  ov.innerHTML = '<div class="shotbox"><img alt="' + esc(r.name) + ' 訂位截圖" src="' + r.shot + '"><button class="btn" type="button">關閉</button></div>';
+  const ov = document.createElement("div"); ov.className = "shotov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-label", r.label || "訂位截圖");
+  ov.innerHTML = '<div class="shotbox"><img alt="' + esc(r.name) + ' ' + (r.label || "訂位截圖") + '" src="' + r.shot + '"><button class="btn" type="button">關閉</button></div>';
   const onKey = e => { if (e.key === "Escape") close(); };
   const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
   ov.addEventListener("click", e => { if (e.target === ov || e.target.tagName === "BUTTON") close(); });
@@ -615,24 +623,35 @@ function renderOverview() {
       '<div>' + ic("bed") + '<span>' + TRIP.days.length + ' 天 · 住宿 2 間（名古屋、高山）</span></div>' +
       '<div>' + ic("plane") + '<span>台灣虎航 IT206 / IT209</span></div></div>' + nowBox() + '</section>' +
     (TRIP.isSample ? '<div class="sample">航班、住宿、預約與你指定的地點是實際資料；沒指定的時段是我先排的建議。</div>' : '') +
+    '<section class="card"><h3>待辦事項 <small>勾選與新增的項目只存在這支手機，不會同步給別人</small></h3><ul class="todo">' +
+      TODOS.concat(loadMyTodo().map(x => ({ id: x.id, t: x.t, mine: true }))).map(t => '<li><label><input type="checkbox" class="chk" data-id="' + esc(t.id) + '"' + (done[t.id] ? " checked" : "") + '><span>' + esc(t.t) + '</span></label>' + (t.mine ? '<button class="del tdel" type="button" data-id="' + esc(t.id) + '" aria-label="刪除這個待辦">×</button>' : '') + '</li>').join("") + '</ul>' +
+      '<form class="tadd" id="t-form"><input id="t-new" type="text" maxlength="60" placeholder="新增待辦，例如：買行動電源" autocomplete="off" enterkeyhint="done"><button class="btn" type="submit">新增</button></form></section>' +
     '<section class="card"><h3>' + ic("cloud") + '每日天氣 <small class="wsrc">' + esc(TRIP.weatherSrc) + '</small></h3>' + wxStrip() + '<p class="hint">' + esc(SRC_NOTE) + '</p></section>' +
-    '<section class="card"><h3>待辦事項 <small>勾選只存在這支手機，不會同步給別人</small></h3><ul class="todo">' +
-      TODOS.map(t => '<li><label><input type="checkbox" class="chk" data-id="' + t.id + '"' + (done[t.id] ? " checked" : "") + '><span>' + esc(t.t) + '</span></label></li>').join("") + '</ul></section>' +
+    '<section class="card"><h3>每日一覽</h3><ul class="dlist">' + TRIP.days.map((d, i) => { const dt = dayDate(i);
+      return '<li><button class="dbtn" data-i="' + i + '"><span class="n">D' + (i+1) + '</span><span class="t">' + esc(d.title) + '</span><span class="s">' + (dt.getMonth()+1) + '/' + dt.getDate() + '（' + WD[dt.getDay()] + '）' + (d.stay ? ' · 住 ' + (d.stay === TAKAYAMA ? '高山' : '名古屋') : '') + '</span></button></li>'; }).join("") + '</ul></section>' +
     '<section class="card"><h3>航班</h3>' + FLIGHTS.map(f => '<div class="fl"><span class="a">' + esc(f.a) + '</span><span class="b">' + esc(f.b) + '</span><span class="c">' + esc(f.c) + '</span></div>').join("") + '</section>' +
     '<section class="card"><h3>住宿</h3><dl class="kv">' +
       '<dt>11/5、11/7–11/9</dt><dd><b>' + esc(HOTEL.name) + '</b><br><span class="jp">' + esc(HOTEL.addr) + '</span><br>' + telLink(HOTEL.tel, HOTEL.telShow) + ' · <a class="map" href="' + mapUrl(HOTEL.q) + '" target="_blank" rel="noopener">在地圖開啟</a></dd>' +
       '<dt>11/6</dt><dd><b>' + esc(TAKAYAMA.name) + '</b><br><span class="jp">' + esc(TAKAYAMA.addr) + '</span><br>' + telLink(TAKAYAMA.tel, TAKAYAMA.telShow) + ' · <a class="map" href="' + mapUrl(TAKAYAMA.q) + '" target="_blank" rel="noopener">在地圖開啟</a></dd></dl></section>' +
     '<section class="card"><h3>已訂位</h3>' + RESERV.map(r => '<div class="res"><b>' + esc(r.name) + '</b><span>' + esc(r.when) + '</span><span class="p">' + esc(r.p) + '</span><div class="links"><a class="map" href="' + r.u + '" target="_blank" rel="noopener">在地圖開啟</a>' + (r.shot ? '<span aria-hidden="true">·</span><button class="map shotbtn" type="button" data-i="' + RESERV.indexOf(r) + '">訂位截圖</button>' : '') + '</div></div>').join("") + '</section>' +
+    '<section class="card" id="l-shop"></section>' +
     '<section class="card"><h3>緊急聯絡電話</h3><dl class="kv"><dt>警察</dt><dd>' + telLink("110", "110") + '</dd><dt>火警、救護</dt><dd>' + telLink("119", "119") + '</dd>' +
       '<dt>保險公司</dt><dd><b>台灣產物</b><br>' + telLink("+88626619" + "9205", "+886-2-6619-9205") + '<br><span class="jp">海外專線，從日本撥打。</span></dd>' +
       '<dt>外交部<br>海外求助</dt><dd><b>旅外國人緊急服務專線</b><br><span class="jp">國內免付費 0800-085-095（你幫我 你救我）</span><br>從日本撥打：' + telLink("+886800085095", "+886-800-085-095") + '<br><span class="jp">須自付國際電話費；撥打方式為「當地國國際電話冠碼」＋886-800-085-095</span><br><br><b>旅外國人急難救助全球服務免付費專線</b><br><span class="jp">800-0885-0885（你幫幫我、你幫幫我）</span><br>從日本撥打：' + telLink("00101080008850885", "001 + 010-800-0885-0885") + '<br><span class="jp">或撥 0033 再撥 010-800-0885-0885</span></dd>' +
       '<dt>名古屋住宿</dt><dd>' + esc(HOTEL.name) + '<br>' + telLink(HOTEL.tel, HOTEL.telShow) + '</dd>' +
       '<dt>高山住宿</dt><dd>' + esc(TAKAYAMA.name) + '<br>' + telLink(TAKAYAMA.tel, TAKAYAMA.telShow) + '</dd></dl></section>' +
-    '<section class="card" id="l-shop"></section>' +
-    (STANDALONE ? '<section class="card"><h3>資料管理</h3>' + (window.FIREBASE_CONFIG ? '<div class="hint" id="sync-box"><b>多人同步</b>：四個人輸入同一組「共用代碼」，公帳與共用清單就會即時同步。個人帳和個人清單仍只存在各自手機。</div><div class="setrow"><label>共用代碼<input id="sync-code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="例如 nagoya-xxxxxxxx"></label></div><div class="hint" id="sync-st"></div><button class="btn" id="sync-save" type="button">儲存代碼並重新載入</button>' : '') + '<div class="hint">本機資料（個人帳、個人清單' + (window.FIREBASE_CONFIG ? '，以及尚未開啟同步時的共用資料' : '、共用帳與清單') + '）只存在這支手機的瀏覽器。出發前可以一次清掉測試資料。</div><button class="btn ghost" id="clr-all" type="button">清除這支手機上的記帳與清單資料</button></section>' : '') +
-    '<section class="card"><h3>每日一覽</h3><ul class="dlist">' + TRIP.days.map((d, i) => { const dt = dayDate(i);
-      return '<li><button class="dbtn" data-i="' + i + '"><span class="n">D' + (i+1) + '</span><span class="t">' + esc(d.title) + '</span><span class="s">' + (dt.getMonth()+1) + '/' + dt.getDate() + '（' + WD[dt.getDay()] + '）' + (d.stay ? ' · 住 ' + (d.stay === TAKAYAMA ? '高山' : '名古屋') : '') + '</span></button></li>'; }).join("") + '</ul></section>';
+        (STANDALONE ? '<section class="card"><h3>資料管理</h3>' + (window.FIREBASE_CONFIG ? '<div class="hint" id="sync-box"><b>多人同步</b>：四個人輸入同一組「共用代碼」，公帳與共用清單就會即時同步。個人帳和個人清單仍只存在各自手機。</div><div class="setrow"><label>共用代碼<input id="sync-code" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="例如 nagoya-xxxxxxxx"></label></div><div class="hint" id="sync-st"></div><button class="btn" id="sync-save" type="button">儲存代碼並重新載入</button>' : '') + '<div class="hint">本機資料（個人帳、個人清單' + (window.FIREBASE_CONFIG ? '，以及尚未開啟同步時的共用資料' : '、共用帳與清單') + '）只存在這支手機的瀏覽器。出發前可以一次清掉測試資料。</div><button class="btn ghost" id="clr-all" type="button">清除這支手機上的記帳與清單資料</button></section>' : '');
   document.querySelectorAll(".chk").forEach(c => c.addEventListener("change", () => { const o = loadTodo(); o[c.dataset.id] = c.checked; saveTodo(o); }));
+  const tf = $("t-form");
+  if (tf) tf.addEventListener("submit", ev => {
+    ev.preventDefault(); const v = $("t-new").value.trim(); if (!v) return;
+    const a = loadMyTodo(); a.push({ id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), t: v.slice(0, 60) }); saveMyTodo(a);
+    const y = window.scrollY; renderOverview(); window.scrollTo(0, y); const n = $("t-new"); if (n) n.focus();
+  });
+  document.querySelectorAll(".tdel").forEach(b => b.addEventListener("click", () => {
+    saveMyTodo(loadMyTodo().filter(x => x.id !== b.dataset.id)); const o = loadTodo(); delete o[b.dataset.id]; saveTodo(o);
+    const y = window.scrollY; renderOverview(); window.scrollTo(0, y);
+  }));
   document.querySelectorAll(".dbtn").forEach(b => b.addEventListener("click", () => go(+b.dataset.i)));
   document.querySelectorAll(".shotbtn").forEach(b => b.addEventListener("click", () => showShot(RESERV[+b.dataset.i])));
   L.shopBuilt = false; shopRefresh();
@@ -795,11 +814,23 @@ function shopRefresh() {
   root.querySelectorAll(".sb").forEach(b => b.setAttribute("aria-selected", String(b.dataset.s === L.shopMode)));
   const done = rows.filter(r => r.done).length; $("sh-cnt").textContent = rows.length ? "已買 " + done + "/" + rows.length : "";
   const grp = k => { const g = rows.filter(r => (r.sk || "shop") === k); return '<div class="shg"><div class="gl">' + SK[k] + (g.length ? ' · ' + g.filter(r => r.done).length + '/' + g.length : '') + '</div>' +
-    (g.length ? '<ul class="shl">' + g.map(r => '<li class="' + (r.done ? 'dn' : '') + '"><label class="shc"><input type="checkbox" data-id="' + esc(r.id) + '"' + (r.done ? ' checked' : '') + (L.canWrite === false ? ' disabled' : '') + '><span><b>' + esc(r.text) + '</b>' + (r.qty > 1 ? ' ×' + esc(r.qty) : '') + (r.place ? '<small>' + esc(r.place) + '</small>' : '') + '</span></label>' +
+    (g.length ? '<ul class="shl">' + g.map(r => '<li class="' + (r.done ? 'dn' : '') + '"><label class="shc"><input type="checkbox" data-id="' + esc(r.id) + '"' + (r.done ? ' checked' : '') + (L.canWrite === false ? ' disabled' : '') + '><span><b>' + esc(r.text) + '</b>' + (r.qty > 1 ? ' ×' + esc(r.qty) : '') + (r.place ? '<small>' + esc(r.place) + '</small>' : '') + '</span></label>' + (r.photo ? '<button class="map shotbtn phbtn" type="button" data-id="' + esc(r.id) + '">照片</button>' : '') +
       (L.canWrite === false || (pub && r.by && r.by !== myId()) ? '' : '<button class="del" data-id="' + esc(r.id) + '" aria-label="刪除">×</button>') + '</li>').join("") + '</ul>' : '<div class="empty">還沒有項目。</div>') + '</div>'; };
   $("sh-list").innerHTML = grp("shop") + grp("gift");
   $("sh-list").querySelectorAll("input[type=checkbox]").forEach(c => c.addEventListener("change", async () => { try { await shopCol().doc(c.dataset.id).update({ done: c.checked }); } catch (e) { shopMsg("更新失敗，可能沒有權限。"); } }));
+  $("sh-list").querySelectorAll(".phbtn").forEach(b => b.addEventListener("click", () => { const r = rows.find(x => x.id === b.dataset.id); if (r && r.photo) showShot({ name: r.text, shot: r.photo, label: "照片" }); }));
   $("sh-list").querySelectorAll(".del").forEach(b => b.addEventListener("click", async () => { try { await shopCol().doc(b.dataset.id).delete(); } catch (e) { shopMsg("刪除失敗。"); } }));
+}
+function shrinkImg(file) {
+  return new Promise((ok, no) => {
+    const u = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { try {
+      const k = Math.min(1, 800 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(im.width * k)); c.height = Math.max(1, Math.round(im.height * k));
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); ok(c.toDataURL("image/jpeg", 0.65));
+    } catch (e) { no(e); } };
+    im.onerror = () => { URL.revokeObjectURL(u); no(new Error("img")); }; im.src = u;
+  });
 }
 function shopMsg(t) { const m = $("sh-msg"); if (m) m.innerHTML = t ? '<div class="note-box warn">' + esc(t) + '</div>' : ""; }
 function shopForm() {
@@ -809,13 +840,22 @@ function shopForm() {
     '<label>數量<input id="sh-q" type="number" min="1" step="1" inputmode="numeric" value="1"></label>' +
     '<label class="wide">品項<input id="sh-t" type="text" maxlength="60" required placeholder="例如：面膜、青蛙饅頭"></label>' +
     '<label class="wide">地點／送給誰（選填）<input id="sh-p" type="text" maxlength="60" placeholder="例如：藥妝店、送同事"></label>' +
+    '<label class="wide">照片（選填）<input id="sh-f" type="file" accept="image/*"></label><img id="sh-pv" class="shpv" alt="" hidden>' +
     '<button class="btn" type="submit">加入' + (L.shopMode === "pub" ? "共用" : "個人") + '清單</button>';
   $("sh-k").addEventListener("change", e => { L.shopKind = e.target.value; });
+  L.shopPhoto = "";
+  $("sh-f").addEventListener("change", async e => {
+    const file = e.target.files && e.target.files[0], pv = $("sh-pv"); L.shopPhoto = ""; pv.hidden = true;
+    if (!file) return;
+    try { L.shopPhoto = await shrinkImg(file); pv.src = L.shopPhoto; pv.hidden = false; shopMsg(""); }
+    catch (err) { shopMsg("照片讀取失敗，請換一張。"); e.target.value = ""; }
+  });
   f.onsubmit = async ev => {
     ev.preventDefault(); const t = $("sh-t").value.trim(); if (!t || !L.db || !myId()) return;
     const data = { sk: $("sh-k").value, text: t, qty: Math.max(1, Math.round(Number($("sh-q").value)) || 1), place: $("sh-p").value.trim(), done: false, createdAt: Date.now() };
     if (L.shopMode === "pub") data.by = myId();
-    try { await shopCol().add(data); shopMsg(""); $("sh-t").value = ""; $("sh-p").value = ""; $("sh-q").value = "1"; }
+    if (L.shopPhoto) data.photo = L.shopPhoto;
+    try { await shopCol().add(data); shopMsg(""); L.shopPhoto = ""; $("sh-f").value = ""; $("sh-pv").hidden = true; $("sh-t").value = ""; $("sh-p").value = ""; $("sh-q").value = "1"; }
     catch (e) { shopMsg("新增失敗，可能沒有權限（" + ((e && e.code) || "未知") + "）。"); if (e && e.code === "invalid_argument") L.canWrite = false; }
   };
 }
