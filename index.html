@@ -409,12 +409,12 @@ const TAKAYAMA = { name: "桑雅博爾恩旅舍 Thai Restaurant & Guest House TH
 const TRIP = {
   start: "2026-11-05",      // 第 1 天的日期（YYYY-MM-DD）
   isSample: true,           // 換成實際行程後改成 false
-  updated: "2026-10-15 07:00",
+  updated: "2026-10-17 19:30",
   weatherSrc: "平年值，非預報",
   days: [
     { title: "抵達夜", route: ["airport","nagoya"], weather: { items: [{ p: "名古屋", lo: 8, hi: 17, icon: "suncloud", short: "晴時多雲", desc: "晴時多雲居多，偏乾" }], tip: "夜間約 10°C 上下，帶薄外套" }, stay: HOTEL, note: "傍晚才落地，今晚只要平安進飯店、吃點東西", stops: [
-      { t: "15:10", n: "桃園機場 T1 起飛", jp: "IT206 TPE → NGO", note: "台灣虎航 IT206，預計 18:50 抵達名古屋 T2", k: "move", q: "桃園國際機場 第一航廈" },
-      { t: "18:50", n: "名古屋中部機場 T2 抵達", jp: "中部国際空港 第2ターミナル", note: "入境後走到名鐵站，搭 μSKY 特急到名鐵名古屋站，約 30 分鐘", k: "move", q: "中部国際空港 第2ターミナル" },
+      { t: "15:05", n: "桃園機場 T1 起飛", jp: "IT706 TPE → NGO", note: "台灣虎航 IT706（航班已更正），預計 18:45 抵達名古屋 T2", k: "move", q: "桃園國際機場 第一航廈" },
+      { t: "18:45", n: "名古屋中部機場 T2 抵達", jp: "中部国際空港 第2ターミナル", note: "入境後走到名鐵站，搭 μSKY 特急到名鐵名古屋站，約 30 分鐘", k: "move", q: "中部国際空港 第2ターミナル" },
       { t: "20:45", n: "飯店入住", jp: "MANGA ART HOTEL, NAGOYA MARUNOUCHI", note: "名古屋站搭地鐵到丸之內附近，放行李，快速整理後出門", k: "move", q: "MANGA ART HOTEL NAGOYA MARUNOUCHI 名古屋市中区丸の内1丁目9-5" },
       { t: "22:00", n: "晚餐暨宵夜：Dining Forever Young", jp: "名古屋市中区錦2丁目6-31（〒460-0003）", note: "4 位，已確認預約（TableCheck）。離丸之內飯店大約步行 10–15 分鐘，請用地圖確認路線。入境若延誤，要提早通知餐廳", k: "eat", q: "Dining Forever Young 愛知県名古屋市中区錦2丁目6-31", u: "https://maps.app.goo.gl/qedAyrYFFB7N82p17?g_st=il" }
     ]},
@@ -501,7 +501,7 @@ const TRIP = {
 };
 /* ===== 以下不用動 ===== */
 const FLIGHTS = [
-  { a: "去程 · 11/5（四）", b: "15:10 → 18:50", c: "IT206 · 桃園 T1 → 名古屋 T2" },
+  { a: "去程 · 11/5（四）", b: "15:05 → 18:45", c: "IT706 · 桃園 T1 → 名古屋 T2" },
   { a: "回程 · 11/9（一）", b: "21:15 → 23:50", c: "IT209 · 名古屋 T2 → 桃園 T1" }
 ];
 const RESERV = [
@@ -621,7 +621,7 @@ function renderOverview() {
     '<section class="hero"><h2>四人慢慢旅</h2><div class="hmeta">' +
       '<div>' + ic("cal") + '<span>' + rng + '</span></div>' +
       '<div>' + ic("bed") + '<span>' + TRIP.days.length + ' 天 · 住宿 2 間（名古屋、高山）</span></div>' +
-      '<div>' + ic("plane") + '<span>台灣虎航 IT206 / IT209</span></div></div>' + nowBox() + '</section>' +
+      '<div>' + ic("plane") + '<span>台灣虎航 IT706 / IT209</span></div></div>' + nowBox() + '</section>' +
     (TRIP.isSample ? '<div class="sample">航班、住宿、預約與你指定的地點是實際資料；沒指定的時段是我先排的建議。</div>' : '') +
     '<section class="card"><h3>待辦事項 <small>勾選與新增的項目只存在這支手機，不會同步給別人</small></h3><ul class="todo">' +
       TODOS.concat(loadMyTodo().map(x => ({ id: x.id, t: x.t, mine: true }))).map(t => '<li><label><input type="checkbox" class="chk" data-id="' + esc(t.id) + '"' + (done[t.id] ? " checked" : "") + '><span>' + esc(t.t) + '</span></label>' + (t.mine ? '<button class="del tdel" type="button" data-id="' + esc(t.id) + '" aria-label="刪除這個待辦">×</button>' : '') + '</li>').join("") + '</ul>' +
