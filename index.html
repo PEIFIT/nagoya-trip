@@ -420,7 +420,7 @@ const TAKAYAMA = { name: "桑雅博爾恩旅舍 Thai Restaurant & Guest House TH
 const TRIP = {
   start: "2026-11-05",      // 第 1 天的日期（YYYY-MM-DD）
   isSample: true,           // 換成實際行程後改成 false
-  updated: "2026-10-19 11:50",
+  updated: "2026-10-19 12:10",
   weatherSrc: "平年值，非預報",
   days: [
     { title: "抵達夜", route: ["airport","nagoya"], weather: { items: [{ p: "名古屋", lo: 8, hi: 17, icon: "suncloud", short: "晴時多雲", desc: "晴時多雲居多，偏乾" }], tip: "夜間約 10°C 上下，帶薄外套" }, stay: HOTEL, note: "傍晚才落地，今晚只要平安進飯店、吃點東西", stops: [
@@ -923,7 +923,7 @@ function ledgerRefresh() {
   const go2 = ps => {
     if (tok !== L.tok) return;
     const rate = Number(L.meta.rate) > 0 ? Number(L.meta.rate) : 0, bud = pub ? (Number(L.meta.budget) || 0) : (Number(L.myBudget) || 0);
-    let sum = '<h3>' + (pub ? "公帳" : "個人") + '總計 <small>' + rows.length + ' 筆</small></h3><div class="bigsum">' + yen(c.total) + '</div>' + (rate ? '<div class="twd">約 NT$ ' + Math.round(c.total * rate).toLocaleString("zh-TW") + '（匯率 ' + rate + '）</div>' : '');
+    let sum = '<h3>' + (pub ? "公帳" : "個人") + '總計 <small>' + rows.length + ' 筆</small></h3><div class="bigsum">' + yen(c.total) + '</div>' + (rate || rows.some(r => Number(r.fx) > 0) ? '<div class="twd">約 NT$ ' + Math.round(rows.reduce((t, r) => t + (r.cur === "TWD" ? Number(r.orig) || 0 : (Number(r.amount) || 0) * (Number(r.fx) > 0 ? Number(r.fx) : rate)), 0)).toLocaleString("zh-TW") + (rows.some(r => Number(r.fx) > 0) ? '（有自訂匯率的項目依該匯率計算，其餘 ' + (rate || "—") + '）' : '（匯率 ' + rate + '）') + '</div>' : '');
     if (bud > 0) { const pct = c.total / bud * 100; sum += '<div class="bar"><i class="' + (pct > 100 ? "over" : pct > 80 ? "warn" : "") + '" style="width:' + Math.min(100, pct).toFixed(1) + '%"></i></div><div class="hint">預算 ' + yen(bud) + '，已用 ' + Math.round(pct) + '%，' + (c.total > bud ? '超過 ' + yen(c.total - bud) : '還剩 ' + yen(bud - c.total)) + '</div>'; }
     if (!pub) sum += '<div class="hint">' + (STANDALONE ? '資料只存在這支手機的瀏覽器，不會同步到其他裝置；換手機或清除瀏覽資料會消失，建議定期按「匯出 CSV」備份。' : '這份帳只存在你的帳號，其他人包括建立者都看不到。') + '</div>';
     sum += '<div class="setrow"><label>' + (pub ? "公帳預算（日圓）" : "個人預算（日圓）") + '<input id="s-b" type="number" min="0" inputmode="numeric" value="' + (bud || "") + '" placeholder="不設"></label><label' + (pub ? '' : ' hidden') + '>參與者（用逗號分隔）<input id="s-p" type="text" value="' + esc(peopleList().join("、")) + '" placeholder="我、她"></label><label>匯率（1 日圓＝台幣）<input id="s-r" type="number" min="0" step="any" inputmode="decimal" value="' + (rate || "") + '" placeholder="例如 0.21"></label><button class="btn ghost" id="s-save" type="button">儲存設定</button></div>';
@@ -953,7 +953,7 @@ function ledgerRefresh() {
         const mine = true;
         const sp = splitOf(r), allm = sp.length === peopleList().length && peopleList().every(m => sp.indexOf(m) >= 0);
         const info = pub ? esc(who(r.payer)) + '付 · ' + (allm ? "全員分攤" : "分攤：" + esc(sp.map(who).join("、"))) : "";
-        return head + '<li class="er"><span class="cc">' + esc(r.cat || "其他") + '</span><div class="ei"><b>' + esc(r.title || "") + '</b><span class="en">' + info + (r.note ? (pub ? " · " : "") + esc(r.note) : "") + '</span></div><span class="ea">' + yen(Number(r.amount) || 0) + (r.cur === "TWD" ? '<small style="display:block;font-weight:500;opacity:.7">NT$ ' + Number(r.orig || 0).toLocaleString("zh-TW") + '</small>' : '') + '</span>' +
+        return head + '<li class="er"><span class="cc">' + esc(r.cat || "其他") + '</span><div class="ei"><b>' + esc(r.title || "") + '</b><span class="en">' + info + (r.note ? (pub ? " · " : "") + esc(r.note) : "") + '</span></div><span class="ea">' + yen(Number(r.amount) || 0) + (r.cur === "TWD" ? '<small style="display:block;font-weight:500;opacity:.7">NT$ ' + Number(r.orig || 0).toLocaleString("zh-TW") + '</small>' : (Number(r.fx) > 0 ? '<small style="display:block;font-weight:500;opacity:.7">NT$ ' + Math.round((Number(r.amount) || 0) * Number(r.fx)).toLocaleString("zh-TW") + '</small>' : '')) + '</span>' +
           (mine ? '<span class="acts"><button class="ed" data-id="' + esc(r.id) + '" aria-label="編輯">✎</button><button class="del" data-id="' + esc(r.id) + '" aria-label="刪除">×</button></span>' : '<span></span>') + '</li>';
       }).join("") + '</ul>';
     }
@@ -980,7 +980,7 @@ function renderLedgerForm() {
   f.innerHTML = '<h3>' + (ed ? "編輯這一筆" : (pub ? "記一筆公帳" : "記一筆個人帳")) + '</h3><form id="l-f" class="lf">' +
     '<label>幣別<select id="f-cur"><option value="JPY"' + (isTW ? "" : " selected") + '>日圓 ¥</option><option value="TWD"' + (isTW ? " selected" : "") + '>台幣 NT$（出發前花費）</option></select></label>' +
     '<label id="f-al">' + (isTW ? "金額（台幣）" : "金額（日圓）") + '<input id="f-a" type="number" min="1" step="1" inputmode="numeric" required placeholder="1200" value="' + esc(ed ? (isTW ? v.orig : v.amount) : "") + '"></label>' +
-    '<label class="wide" id="f-fxl"' + (isTW ? '' : ' hidden') + '>固定匯率（1 日圓＝台幣，這筆專用）<input id="f-fx" type="number" min="0" step="any" inputmode="decimal" value="' + (isTW && v.fx ? v.fx : fxRate()) + '"></label><div class="hint wide" id="f-conv"' + (isTW ? '' : ' hidden') + '></div>' +
+    '<label class="wide" id="f-fxl">' + (isTW ? "固定匯率（1 日圓＝台幣，這筆專用）" : "信用卡匯率（選填，1 日圓＝台幣）") + '<input id="f-fx" type="number" min="0" step="any" inputmode="decimal" placeholder="例如 0.202" value="' + (ed && v.fx ? v.fx : (isTW ? fxRate() : "")) + '"></label><div class="hint wide" id="f-conv"></div>' +
     '<label>項目<input id="f-t" type="text" maxlength="60" required placeholder="例如：午餐 拉麵" value="' + esc(ed ? v.title : "") + '"></label>' +
     '<label>類別<select id="f-c">' + CATS.map(c => '<option' + ((ed ? v.cat : "") === c ? " selected" : "") + '>' + c + '</option>').join("") + '</select></label>' +
     '<label>日期<input id="f-d" type="date" required value="' + esc(ed ? v.date : todayStr()) + '"></label>' +
@@ -989,7 +989,7 @@ function renderLedgerForm() {
     '<label class="wide">備註（選填）<input id="f-n" type="text" maxlength="80" value="' + esc(ed ? v.note : "") + '"></label>' +
     '<div class="wide btnrow"><button class="btn" id="f-b" type="submit">' + (ed ? "儲存修改" : "新增") + '</button>' + (ed ? '<button class="btn ghost" id="f-x" type="button">取消</button>' : '') + '</div></form>';
   if (prev) { ["f-a", "f-t", "f-c", "f-d", "f-n", "f-fx"].forEach(k => { if (prev[k] != null && $(k)) $(k).value = prev[k]; }); }
-  const curSync = () => { const tw = $("f-cur").value === "TWD"; $("f-al").firstChild.nodeValue = tw ? "金額（台幣）" : "金額（日圓）"; $("f-fxl").hidden = $("f-conv").hidden = !tw; const a = Number($("f-a").value), r = Number($("f-fx").value); $("f-conv").textContent = tw && a > 0 && r > 0 ? "NT$ " + a.toLocaleString("zh-TW") + " ÷ " + r + " ≈ ¥" + Math.round(a / r).toLocaleString("ja-JP") + "（以日圓計入統計與分攤）" : ""; };
+  const curSync = () => { const tw = $("f-cur").value === "TWD"; $("f-al").firstChild.nodeValue = tw ? "金額（台幣）" : "金額（日圓）"; $("f-fxl").firstChild.nodeValue = tw ? "固定匯率（1 日圓＝台幣，這筆專用）" : "信用卡匯率（選填，1 日圓＝台幣）"; if (tw && !$("f-fx").value) $("f-fx").value = fxRate(); const a = Number($("f-a").value), r = Number($("f-fx").value); $("f-conv").textContent = a > 0 && r > 0 ? (tw ? "NT$ " + a.toLocaleString("zh-TW") + " ÷ " + r + " ≈ ¥" + Math.round(a / r).toLocaleString("ja-JP") + "（以日圓計入統計與分攤）" : "¥" + Math.round(a).toLocaleString("ja-JP") + " × " + r + " ≈ NT$ " + Math.round(a * r).toLocaleString("zh-TW")) : ""; };
   ["f-cur", "f-a", "f-fx"].forEach(k => $(k).addEventListener(k === "f-cur" ? "change" : "input", curSync)); curSync();
   $("l-f").addEventListener("submit", saveEntry);
   const x = $("f-x"); if (x) x.addEventListener("click", () => { L.edit = null; ledgerRefresh(); });
@@ -1007,7 +1007,7 @@ async function saveEntry(ev) {
   const pub = L.mode === "pub", tw = $("f-cur").value === "TWD", fx = Number($("f-fx").value), raw = Number($("f-a").value), amount = tw ? (fx > 0 ? Math.round(raw / fx) : 0) : Math.round(raw), title = $("f-t").value.trim();
   if (!(amount > 0) || !title) { L.msg = tw && !(fx > 0) ? "請填匯率。" : "請填金額和項目。"; ledgerRefresh(); return; }
   const data = { amount, title, cat: $("f-c").value, date: $("f-d").value || todayStr(), note: $("f-n").value.trim() };
-  if (tw) { data.cur = "TWD"; data.orig = Math.round(raw); data.fx = fx; }
+  if (tw) { data.cur = "TWD"; data.orig = Math.round(raw); data.fx = fx; } else if (fx > 0) data.fx = fx;
   if (pub) {
     data.payer = $("f-p").value; data.split = Array.from(document.querySelectorAll(".f-sp")).filter(x => x.checked).map(x => x.value);
     if (!data.split.length) { L.msg = "至少要選一位分攤的人。"; ledgerRefresh(); return; }
