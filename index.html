@@ -420,7 +420,7 @@ const TAKAYAMA = { name: "桑雅博爾恩旅舍 Thai Restaurant & Guest House TH
 const TRIP = {
   start: "2026-11-05",      // 第 1 天的日期（YYYY-MM-DD）
   isSample: true,           // 換成實際行程後改成 false
-  updated: "2026-10-19 12:10",
+  updated: "2026-10-19 14:50",
   weatherSrc: "平年值，非預報",
   days: [
     { title: "抵達夜", route: ["airport","nagoya"], weather: { items: [{ p: "名古屋", lo: 8, hi: 17, icon: "suncloud", short: "晴時多雲", desc: "晴時多雲居多，偏乾" }], tip: "夜間約 10°C 上下，帶薄外套" }, stay: HOTEL, note: "傍晚才落地，今晚只要平安進飯店、吃點東西", stops: [
@@ -775,6 +775,7 @@ const LEDGER = 99;
 const CATS = ["餐飲", "交通", "住宿", "購物", "門票", "其他"];
 const L = { mode: "pub", pub: [], mine: [], members: [], meta: {}, myBudget: 0, me: null, db: null, user: null, dl: null, canWrite: null, avail: null, msg: "", busy: false, tok: 0, edit: null, joined: false, shopPub: [], shopMine: [], shopMode: "pub", shopKind: "shop", shopBuilt: false, formKey: "", names: {} };
 const yen = n => "¥" + Math.round(n).toLocaleString("ja-JP");
+const twdOf = (r, rate) => r.cur === "TWD" ? Number(r.orig) || 0 : (Number(r.fx) > 0 ? Math.round((Number(r.amount) || 0) * Number(r.fx)) : (rate > 0 ? Math.round((Number(r.amount) || 0) * rate) : null));
 const todayStr = () => ymd(new Date());
 const myId = () => (L.me && L.me.id) || null;
 const peopleList = () => { const p = Array.isArray(L.meta.people) && L.meta.people.length ? L.meta.people : ["我", "她"]; return p; };
@@ -953,7 +954,7 @@ function ledgerRefresh() {
         const mine = true;
         const sp = splitOf(r), allm = sp.length === peopleList().length && peopleList().every(m => sp.indexOf(m) >= 0);
         const info = pub ? esc(who(r.payer)) + '付 · ' + (allm ? "全員分攤" : "分攤：" + esc(sp.map(who).join("、"))) : "";
-        return head + '<li class="er"><span class="cc">' + esc(r.cat || "其他") + '</span><div class="ei"><b>' + esc(r.title || "") + '</b><span class="en">' + info + (r.note ? (pub ? " · " : "") + esc(r.note) : "") + '</span></div><span class="ea">' + yen(Number(r.amount) || 0) + (r.cur === "TWD" ? '<small style="display:block;font-weight:500;opacity:.7">NT$ ' + Number(r.orig || 0).toLocaleString("zh-TW") + '</small>' : (Number(r.fx) > 0 ? '<small style="display:block;font-weight:500;opacity:.7">NT$ ' + Math.round((Number(r.amount) || 0) * Number(r.fx)).toLocaleString("zh-TW") + '</small>' : '')) + '</span>' +
+        return head + '<li class="er"><span class="cc">' + esc(r.cat || "其他") + '</span><div class="ei"><b>' + esc(r.title || "") + '</b><span class="en">' + info + (r.note ? (pub ? " · " : "") + esc(r.note) : "") + '</span></div><span class="ea">' + yen(Number(r.amount) || 0) + (twdOf(r, fxRate()) != null ? '<small style="display:block;font-weight:500;opacity:.7">NT$ ' + twdOf(r, fxRate()).toLocaleString("zh-TW") + '</small>' : '') + '</span>' +
           (mine ? '<span class="acts"><button class="ed" data-id="' + esc(r.id) + '" aria-label="編輯">✎</button><button class="del" data-id="' + esc(r.id) + '" aria-label="刪除">×</button></span>' : '<span></span>') + '</li>';
       }).join("") + '</ul>';
     }
@@ -972,7 +973,7 @@ function formSnap() { const o = {}; ["f-a", "f-t", "f-c", "f-d", "f-n", "f-p", "
 
 function renderLedgerForm() {
   const f = $("l-form"); if (!f) return;
-  const pub = L.mode === "pub", ed = L.edit, prev = ed ? null : formSnap();
+  const pub = L.mode === "pub", ed = L.edit, prev = (ed || L.reset) ? null : formSnap(); L.reset = false;
   if (L.canWrite === false) { f.innerHTML = '<h3>' + (pub ? "記一筆公帳" : "記一筆個人帳") + '</h3><div class="hint">你目前只能查看，沒有記帳權限。請建立者在「分享」把你設為協作者。</div>'; return; }
   const ppl = Array.from(new Set(peopleList().concat(ed ? [who(ed.payer)].concat(splitOf(ed)).filter(Boolean) : [])));
   const v = ed || {}, isTW = !!(ed && ed.cur === "TWD") || (!ed && prev && prev["f-cur"] === "TWD"), chosen = ed ? splitOf(ed) : ((prev && prev.sp || []).filter(x => ppl.indexOf(x) >= 0));
@@ -987,12 +988,13 @@ function renderLedgerForm() {
     (pub ? '<label class="wide">付款人<select id="f-p">' + ppl.map(id => '<option value="' + esc(id) + '"' + (id === (ed ? who(v.payer) : ppl[0]) ? " selected" : "") + '>' + esc(who(id)) + '</option>').join("") + '</select></label>' +
       '<fieldset class="wide chips"><legend>分攤的人</legend>' + ppl.map(id => '<label class="chip"><input type="checkbox" class="f-sp" value="' + esc(id) + '"' + (chosen.indexOf(id) >= 0 ? " checked" : "") + '><span>' + esc(who(id)) + '</span></label>').join("") + '</fieldset>' : '') +
     '<label class="wide">備註（選填）<input id="f-n" type="text" maxlength="80" value="' + esc(ed ? v.note : "") + '"></label>' +
-    '<div class="wide btnrow"><button class="btn" id="f-b" type="submit">' + (ed ? "儲存修改" : "新增") + '</button>' + (ed ? '<button class="btn ghost" id="f-x" type="button">取消</button>' : '') + '</div></form>';
+    '<div class="wide btnrow"><button class="btn" id="f-b" type="submit">' + (ed ? "儲存修改" : "新增") + '</button>' + (ed ? '<button class="btn ghost" id="f-x" type="button">取消</button>' : '<button class="btn ghost" id="f-clr" type="button">清除</button>') + '</div></form>';
   if (prev) { ["f-a", "f-t", "f-c", "f-d", "f-n", "f-fx"].forEach(k => { if (prev[k] != null && $(k)) $(k).value = prev[k]; }); }
   const curSync = () => { const tw = $("f-cur").value === "TWD"; $("f-al").firstChild.nodeValue = tw ? "金額（台幣）" : "金額（日圓）"; $("f-fxl").firstChild.nodeValue = tw ? "固定匯率（1 日圓＝台幣，這筆專用）" : "信用卡匯率（選填，1 日圓＝台幣）"; if (tw && !$("f-fx").value) $("f-fx").value = fxRate(); const a = Number($("f-a").value), r = Number($("f-fx").value); $("f-conv").textContent = a > 0 && r > 0 ? (tw ? "NT$ " + a.toLocaleString("zh-TW") + " ÷ " + r + " ≈ ¥" + Math.round(a / r).toLocaleString("ja-JP") + "（以日圓計入統計與分攤）" : "¥" + Math.round(a).toLocaleString("ja-JP") + " × " + r + " ≈ NT$ " + Math.round(a * r).toLocaleString("zh-TW")) : ""; };
   ["f-cur", "f-a", "f-fx"].forEach(k => $(k).addEventListener(k === "f-cur" ? "change" : "input", curSync)); curSync();
   $("l-f").addEventListener("submit", saveEntry);
   const x = $("f-x"); if (x) x.addEventListener("click", () => { L.edit = null; ledgerRefresh(); });
+  const clr = $("f-clr"); if (clr) clr.addEventListener("click", () => { L.reset = true; L.formKey = ""; L.msg = ""; ledgerRefresh(); });
 }
 
 function startEdit(id) {
@@ -1019,9 +1021,9 @@ async function saveEntry(ev) {
     if (!myId()) throw { code: "no_id" };
     const col = pub ? L.db.collection("ledger") : L.db.collection("data/users/" + myId());
     if (ed) await col.doc(ed.id).set(data); else await col.add(data);
-    L.edit = null; L.formKey = "";
+    L.edit = null; L.formKey = ""; L.reset = true;
   } catch (e) { L.msg = (e && (e.code === "invalid_argument" || e.code === "no_id")) ? "沒有記帳權限，請建立者在「分享」把你設為協作者。" : "儲存失敗，請稍後再試（" + ((e && e.code) || "未知") + "）。"; if (e && e.code === "invalid_argument") L.canWrite = false; }
-  L.busy = false; if (!L.edit) { ["f-a", "f-t", "f-n"].forEach(k => { const el = $(k); if (el) el.value = ""; }); }
+  L.busy = false;
   ledgerRefresh(); const b = $("f-b"); if (b) b.disabled = false;
 }
 
@@ -1050,6 +1052,8 @@ async function exportBrief(rows, c) {
   if (!L.dl) return;
   const rate = fxRate(), people = Array.from(new Set(peopleList().concat(Object.keys(c.net))));
   const t = n => rate ? "約 NT$ " + Math.round(n * rate).toLocaleString("zh-TW") : "";
+  const tw = n => rate ? "（NT$ " + Math.round(n * rate).toLocaleString("zh-TW") + "）" : "";
+  const rowTw = r => r.cur === "TWD" ? "（NT$ " + Number(r.orig || 0).toLocaleString("zh-TW") + "）" : (Number(r.fx) > 0 || rate) ? "（NT$ " + Math.round((Number(r.amount) || 0) * (Number(r.fx) > 0 ? Number(r.fx) : rate)).toLocaleString("zh-TW") + "）" : "";
   const W = 720, PAD = 36, SC = 2, FONT = "'Noto Sans TC','PingFang TC','Microsoft JhengHei',system-ui,sans-serif";
   const INK = "#3A2412", MUTED = "#7B5E47", LINE = "#F1DFCF", ACC = "#855B32", SOFT = "#FDEBDC", POS = "#2F7D4F", NEG = "#B5560F";
   const probe = document.createElement("canvas").getContext("2d");
@@ -1063,8 +1067,10 @@ async function exportBrief(rows, c) {
   T("公帳總計", PAD, 20, MUTED, 600); y += 56; T(yen(c.total), PAD, 44, ACC, 800); if (rate) T(t(c.total), W - PAD, 20, MUTED, 500, "right"); y += 30;
   y += 18; T("每個人", PAD, 20, INK, 800); y += 14;
   people.forEach(id => { y += 44; const n = Math.round(c.net[id] || 0);
-    T(id, PAD, 22, INK, 700); T("先付 " + yen(c.paid[id] || 0) + "　應分攤 " + yen(c.share[id] || 0), PAD + 120, 18, MUTED, 400);
-    T((n >= 0 ? "應收 " : "應付 ") + yen(Math.abs(n)), W - PAD, 22, n >= 0 ? POS : NEG, 800, "right"); });
+    T(id, PAD, 22, INK, 700);
+    T((n >= 0 ? "應收 " : "應付 ") + yen(Math.abs(n)) + tw(Math.abs(n)), W - PAD, 22, n >= 0 ? POS : NEG, 800, "right");
+    wrap("先付 " + yen(c.paid[id] || 0) + tw(c.paid[id] || 0) + "　應分攤 " + yen(c.share[id] || 0) + tw(c.share[id] || 0), "400 16px " + FONT, W - PAD * 2).forEach(line => { y += 26; T(line, PAD, 16, MUTED, 400); });
+    y += 6; });
   y += 28; ops.push({ k: "line", y });
   y += 38; T("建議這樣結清", PAD, 20, INK, 800);
   if (c.transfers.length) c.transfers.forEach(x => { y += 48; ops.push({ k: "box", y: y - 30, h: 44 }); T(x[0] + "  →  " + x[1], PAD + 14, 22, INK, 700); T(yen(x[2]) + (rate ? "（" + t(x[2]) + "）" : ""), W - PAD - 14, 22, ACC, 800, "right"); y += 4; });
@@ -1075,8 +1081,10 @@ async function exportBrief(rows, c) {
   det.forEach(r => {
     if (r.date !== day) { day = r.date; y += 40; T(String(r.date || ""), PAD, 17, MUTED, 700); }
     y += 36;
-    const left = fit((r.cat ? "[" + r.cat + "] " : "") + (r.title || ""), "600 20px " + FONT, 400);
-    T(left, PAD, 20, INK, 600); T(yen(Number(r.amount) || 0), W - PAD, 20, INK, 700, "right");
+    const amt = yen(Number(r.amount) || 0) + rowTw(r);
+    probe.font = "700 20px " + FONT; const aw = probe.measureText(amt).width;
+    const left = fit((r.cat ? "[" + r.cat + "] " : "") + (r.title || ""), "600 20px " + FONT, W - PAD * 2 - aw - 20);
+    T(left, PAD, 20, INK, 600); T(amt, W - PAD, 20, INK, 700, "right");
     const info = who(r.payer) + " 先付｜分攤：" + splitOf(r).join("、") + (r.note ? "｜" + r.note : "");
     wrap(info, "400 16px " + FONT, W - PAD * 2).forEach(line => { y += 24; T(line, PAD, 16, MUTED, 400); });
   });
@@ -1110,6 +1118,7 @@ async function exportCsv(rows, pub) {
 renderTabs(); (cur < 0 ? renderOverview : cur === 99 ? renderLedger : renderDay)();
 initLedger();
 </script>
+
 
 </body>
 </html>
