@@ -359,6 +359,18 @@ input:focus-visible, select:focus-visible, .btn:focus-visible, .sb:focus-visible
 .txflow li::before { content: counter(tx); font-size: .6875rem; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; }
 .txflow li:not(:last-child)::after { content: "→"; color: var(--muted); margin-left: 4px; font-weight: 400; }
 .txair { border-color: var(--accent-edge); }
+.txs { margin-top: 8px; display: flex; gap: 12px; align-items: flex-start; background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.txs .no { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 800; font-size: .875rem; display: grid; place-items: center; margin-top: 1px; }
+.txs b { display: block; font-size: 1rem; }
+.txs strong { display: block; color: var(--ink); font-size: .875rem; margin-top: 4px; }
+.txs span.d { display: block; font-size: .875rem; color: var(--muted); margin-top: 2px; }
+.txsec { font-size: .8125rem; font-weight: 800; color: var(--muted); letter-spacing: .04em; margin: 12px 0 0; }
+.txpair { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.txpc { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; font-size: .875rem; }
+.txpc b { display: block; font-size: .9375rem; margin-bottom: 2px; }
+.txpc.g { border-color: color-mix(in srgb, #2F7D4F 45%, var(--line)); background: color-mix(in srgb, #2F7D4F 12%, var(--surface)); } .txpc.g b { color: color-mix(in srgb, #2F7D4F 75%, var(--ink)); }
+.txpc.r { border-color: color-mix(in srgb, #C0392B 45%, var(--line)); background: color-mix(in srgb, #C0392B 12%, var(--surface)); } .txpc.r b { color: color-mix(in srgb, #C0392B 75%, var(--ink)); }
+.txpc.a { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
 .txsteps { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 4px; font-size: .9375rem; }
 .txst { border-top: 1px solid var(--line); }
 .txst summary { cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0; font-weight: 700; color: var(--accent); min-height: 44px; list-style: none; }
@@ -381,6 +393,17 @@ input:focus-visible, select:focus-visible, .btn:focus-visible, .sb:focus-visible
 .txfr small { display: block; font-size: .75rem; color: var(--muted); }
 .txfr b { text-align: right; font-variant-numeric: tabular-nums; max-width: 55%; }
 .txformula { margin: 0; font-weight: 700; font-size: .875rem; color: var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 8px 10px; }
+.txpl { display: flex; flex-direction: column; }
+.txpr { display: flex; gap: 12px; align-items: center; text-decoration: none; color: var(--ink); padding: 10px 0; border-bottom: 1px solid var(--line); }
+.txpl .txpr:last-child { border-bottom: 0; }
+.txpr .no { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-weight: 800; font-size: .875rem; display: grid; place-items: center; align-self: flex-start; margin-top: 2px; }
+.txpr .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.txpr b { font-size: 1.0625rem; }
+.txpr .u { font-size: .8125rem; color: var(--muted); }
+.txpr .n { font-size: .8125rem; color: var(--muted); }
+.txpr .go { flex: none; width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line); color: var(--accent); display: grid; place-items: center; font-size: 1rem; font-weight: 700; }
+.txpr:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.txvjw { margin-top: 4px; border-top: 1px solid var(--line); border-bottom: 0; padding-left: 0; }
 .txplat { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: .9375rem; }
 .txplat .u { font-size: .8125rem; color: var(--muted); }
 .txkv { grid-template-columns: 5rem minmax(0, 1fr); gap: 6px 12px; }
@@ -504,7 +527,7 @@ const TAKAYAMA = { name: "桑雅博爾恩旅舍 Thai Restaurant & Guest House TH
 const TRIP = {
   start: "2026-11-05",      // 第 1 天的日期（YYYY-MM-DD）
   isSample: true,           // 換成實際行程後改成 false
-  updated: "2026-11-02 16:13",
+  updated: "2026-11-03 13:53",
   weatherSrc: "預報（11/2 更新）",
   days: [
     { title: "抵達夜", route: ["airport","nagoya"], weather: { items: [{ p: "名古屋", lo: 14, hi: 20, icon: "rain", short: "雨後轉晴", rain: "90%", desc: "白天有雨後轉晴，降雨機率約 90%；傍晚落地時雨可能已停" }], tip: "降雨機率高，帶折疊傘或雨衣；傍晚後氣溫偏低，加件薄外套" }, stay: HOTEL, note: "傍晚才落地，今晚只要平安進飯店、吃點東西", stops: [
@@ -592,7 +615,7 @@ const TRIP = {
       { t: "08:45", n: "早餐：咖啡店 KAKO 柳橋店", jp: "名古屋市中村区名駅5-30-4 名駅KDビル", note: "名古屋式早餐", h: "07:00–17:00", k: "eat", q: "喫茶 KAKO 柳橋店 名駅5-30-4" },
       { t: "09:45", n: "前往犬山", jp: "名鉄名古屋駅 → 犬山駅", note: "搭名鐵特急約 30 分鐘；午餐可在犬山城下町解決", k: "move", q: "名鉄名古屋駅" },
       { t: "10:45", n: "三光稻荷神社", jp: "三光稲荷神社", note: "在犬山城下町一帶，從犬山站走城下町過來順路參拜", k: "go", q: "三光稲荷神社 犬山" },
-      { t: "11:30", n: "犬山城", jp: "犬山城", note: "現存天守之一；入場截止時間請再確認，建議不要拖到太晚。看完可沿城下町慢慢走回犬山站", k: "go", q: "犬山城" },
+      { t: "11:27", n: "犬山城", jp: "犬山城", note: "現存天守之一；入場截止時間請再確認，建議不要拖到太晚。看完可沿城下町慢慢走回犬山站", k: "go", q: "犬山城" },
       { t: "13:00", n: "午餐：犬山城下町", jp: "犬山城下町", note: "城下町有許多小吃與餐廳，吃完慢慢走回犬山站", k: "eat", q: "犬山城下町 ランチ" },
       { t: "14:00", n: "回名古屋", jp: "犬山駅 → 名鉄名古屋駅", note: "約 30 分鐘", k: "move", q: "犬山駅" },
       { t: "14:45", n: "高島屋", jp: "JR名古屋タカシマヤ", note: "名古屋站上方的百貨公司，逛逛、買伴手禮；閉店時間請再確認", k: "go", q: "JR名古屋タカシマヤ" },
@@ -625,6 +648,8 @@ const TODOS = [
   { id: "vjw", t: "填寫 VJW", link: { t: "VJW", u: "https://www.vjw.digital.go.jp/main/#/vjwplo001" } },
   { id: "pb", t: "確認行動電源符合航空規定", link: { t: "虎航規定", u: "https://www.tigerairtw.com/zh-TW/welcome-on-board/baggage" } },
   { id: "pass", t: "購買飛騨エリアフリーきっぷ（飛驒路套票）" },
+  { id: "umb", t: "雨傘" },
+  { id: "twd", t: "洗錢用的台幣＋夾鏈袋" },
   { id: "med", t: "日本當地醫療險", link: { t: "東京海上日動 TOKIO OMOTENASHI POLICY", u: "https://tokiomarinenichido.jp/zh-hant/china2/?srsltid=AU7gw4XWT84D7Fz5BDQVznSNqhYtImRsYlk7ZOh3IgxYNONN_SPYfvaZ" } }
 ];
 const PLACES = {
@@ -919,11 +944,10 @@ const TX_STAGES = [
 ];
 
 const TX_PLAT = [
-  ["J-TaxRefund", "網頁，掃 QR code，不用 App，有繁中", "登入 ID 是寄到 Email 的隨機碼，每次登入都要收驗證碼；護照、入境日期要完全正確"],
-  ["JPrefund", "網頁", "要自拍掃臉、填英文住址；沒有 QR code 可用 20 位交易編號或日期＋金額登記；有人選信用卡失敗改選現金"],
-  ["PIE VAT", "專屬 App", "三井 Outlet、LaLaport、澀谷 109"],
-  ["Global Blue", "—", "註冊要轉頭掃整張臉，最費時"],
-  ["Ocean", "—", "安利美特使用"]
+  ["J-TaxRefund", "j-taxrefund.com", "https://j-taxrefund.com", "網頁，掃 QR code，不用 App，有繁中", "登入 ID 是寄到 Email 的隨機碼，每次登入都要收驗證碼；護照、入境日期要完全正確"],
+  ["JPrefund", "jprefund.com", "https://jprefund.com", "網頁", "要自拍掃臉、填英文住址；沒有 QR code 可用 20 位交易編號或日期＋金額登記；有人選信用卡失敗改選現金"],
+  ["Global Blue", "www.globalblue.com", "https://www.globalblue.com", "", "註冊要轉頭掃整張臉，最費時"],
+  ["PIE VAT", "pievat.com", "https://pievat.com", "專屬 App", "三井 Outlet、LaLaport、澀谷 109"]
 ];
 
 /* [店家, 平台, 手續費顯示, 排序值] */
@@ -943,11 +967,12 @@ const TX_TRAPS = [
   ["同張收據少一樣，整筆都不能退", "一起結帳的提袋也算，不能丟"],
   ["不用密封袋，但不能在日本用掉", "吃掉或用掉整筆失效，要先用的分開結帳"],
   ["90 天內要出境", "從購買日算；J-TaxRefund 收據上的 180 天是線上退款手續期限，別搞混"],
-  ["一定要完成平台註冊", "店家登記完不等於退稅完成"],
   ["機場順序不能錯", "先離境確認 → 再托運 → 最後安檢；先托運的話紅燈就沒東西給海關看"],
   ["用同一本護照", "登記、出境都要和購物時出示的一樣"],
-  ["換不了收據", "免稅手續完成後不能退貨，也不能再合併收據"],
-  ["機場管制區內免稅店不受影響", "依舊當場免稅"]
+  ["機場管制區內免稅店不受影響", "依舊當場免稅"],
+  ["不一定要立刻登錄信用卡等退稅資料", "回台 90–180 天內都可。消費紀錄是店員在刷護照時已處理，我們登錄資料是補上退稅資料，例如信用卡號、帳戶資料和護照資料。"],
+  ["不會限制刷哪張卡就要退哪張", "填寫資料時可以自己選。"],
+  ["現金或西瓜卡消費，也可以退稅", "不限定要刷信用卡。"]
 ];
 
 const TX_8 = [
@@ -967,49 +992,37 @@ function txStageNow() {
 }
 
 function renderTax() {
-  const fo = k => TXO.fold[k] ? " open" : "", done = loadTx(), open = TXO.open || txStageNow(), lastD = TRIP.days.length - 1;
+  const fo = k => TXO.fold[k] ? " open" : "", lastD = TRIP.days.length - 1;
+  const stp = (n, t, d) => '<div class="txs"><span class="no">' + n + '</span><div><b>' + t + '</b><span class="d">' + d + '</span></div></div>';
   const tier = v => v === 0 ? "g" : v <= 1.5 ? "y" : "r";
   const TL = { g: "0% 手續費", y: "約 0.3–1.5%", r: "約 1.5% 以上或定額" };
   const fees = TX_FEES.slice().sort((x, y) => x[3] - y[3]);
   const feeHtml = ["g", "y", "r"].map(k => { const rs = fees.filter(f => tier(f[3]) === k); return rs.length ? '<div class="txfg"><span class="txtier ' + k + '">' + TL[k] + '</span>' + rs.map(f => '<div class="txfr"><span class="n">' + esc(f[0]) + '<small>' + esc(f[1]) + '</small></span><b>' + esc(f[2]) + '</b></div>').join("") + '</div>' : ""; }).join("");
   $("view").innerHTML =
-    '<section class="card txhero"><h3>日本退稅新制 <small>2026/11/1 起</small></h3>' +
-      '<p class="txlead">店裡<b>先付含稅價</b>，出境時在機場確認商品帶出境，<b>之後才退款</b>。</p>' +
-      '<ol class="txflow">' + ["含稅價結帳", "收據收好", "平台登記", "商品集中", "機場確認", "再托運", "等退款"].map(x => '<li>' + x + '</li>').join("") + '</ol>' +
-      '<dl class="kv"><dt>門檻</dt><dd>同店同日未稅 ¥5,000（含稅約 ¥5,500）</dd><dt>實拿</dt><dd>約 10% 減手續費（例：手續費 1.5% → 拿回約 8.5%）</dd><dt>期限</dt><dd>購買日起 90 天內出境</dd></dl></section>' +
-    '<section class="card"><h3>退稅 Checklist <small>勾選只存在這支手機</small></h3>' +
-      TX_STAGES.map(st => { const all = st.groups.reduce((a, g) => a.concat(g.items), []), n = all.filter(i => done[i[0]]).length;
-        return '<details class="txst" data-st="' + st.id + '"' + (st.id === open ? " open" : "") + '><summary><span>' + esc(st.t) + '</span><span class="txcnt' + (n === all.length ? " full" : "") + '">' + n + '/' + all.length + '</span></summary>' +
-          (st.note ? '<p class="txnote">' + esc(st.note) + '</p>' : '') +
-          st.groups.map(g => '<div class="txg"><div class="txgl">' + esc(g.g) + '</div><ul class="todo">' + g.items.map(i => '<li><label><input type="checkbox" class="chk txchk" data-id="' + i[0] + '"' + (done[i[0]] ? " checked" : "") + '><span>' + esc(i[1]) + '</span></label></li>').join("") + '</ul></div>').join("") + '</details>'; }).join("") +
-      '<button class="btn ghost sm" type="button" id="tx-reset">全部取消勾選</button></section>' +
-    '<section class="card" id="tx-info"></section>' +
+    '<details class="card txfold" data-k="flow"' + (TXO.fold.flow === false ? "" : " open") + '><summary><h3>退稅 4 步驟 <small>2026/11/1 起</small></h3></summary>' +
+      stp(1, '購物先付含稅價', '結帳時提供護照、要跟店員說要退稅') + stp(2, '出境時、托運前先登記', '用海關機台，或 Visit Japan Web（要連機場的手續專用 Wi-Fi）') + stp(3, '海關判定', '綠燈就完成；紅燈要留在原地讓海關檢查商品') + stp(4, '收到退款', '確認完成後，退到你登記的方式') +
+      '<p class="hint">先登記再托運；若先托運才遇到紅燈，就得把行李領回來開箱。購買後 90 天內要完成出境與退款手續。</p></details>' +
     '<section class="card tf" id="l-tf"><h3>免稅計算 <small>同一家店、同一天</small></h3><div class="tfrow"><label><span id="tf-l10">10% 商品（含稅合計）</span><span class="tfin"><input id="tf-10" type="number" min="0" inputmode="decimal" placeholder="0"><button type="button" class="tfx" data-for="tf-10" aria-label="清除" style="display:none">×</button></span></label><label><span id="tf-l8">8% 食品（含稅合計）</span><span class="tfin"><input id="tf-8" type="number" min="0" inputmode="decimal" placeholder="0"><button type="button" class="tfx" data-for="tf-8" aria-label="清除" style="display:none">×</button></span></label></div><div class="tfm">標價是：<label><input type="radio" name="tf-m" value="in" checked>含稅（税込）</label><label><input type="radio" name="tf-m" value="ex">未稅（税抜）</label></div><div class="tfo" id="tf-out"></div><div class="hint">一般商品與酒類 10%，食品飲料 8%。這裡只估算消費稅，沒有扣手續費；實際退款以店家和退稅平台為準。</div></section>' +
     '<section class="card" id="tx-rec"></section>' +
+    '<details class="card txfold" data-k="plat"' + fo("plat") + '><summary><h3>我的退稅平台</h3></summary><p class="hint">每家店合作的平台不同，遇到新平台就註冊一次；同一平台註冊過，之後的購物會自動匯入。另有 Ocean 平台（安利美特使用）。</p>' +
+      '<div class="txpl">' + TX_PLAT.map((p, i) => '<a class="txpr" href="' + esc(p[2]) + '" target="_blank" rel="noopener"><span class="no">' + (i + 1) + '</span><span class="tx"><b>' + esc(p[0]) + '</b><span class="u">' + esc(p[1]) + '</span>' + (p[3] ? '<span class="n">' + esc(p[3]) + '</span>' : '') + '<span class="n">' + esc(p[4]) + '</span></span><span class="go" aria-hidden="true">↗</span></a>').join("") + '</div>' +
+      '<a class="txpr txvjw" href="https://www.vjw.digital.go.jp/main/#/vjwplo001" target="_blank" rel="noopener"><span class="tx"><b>Visit Japan Web</b><span class="u">vjw.digital.go.jp</span></span><span class="go" aria-hidden="true">↗</span></a>' +
+      '<p class="hint">註冊都要掃護照，有些還要掃上陸許可貼紙；登記退款時要選對離境機場（中部国際空港）。</p></details>' +
     '<details class="card txfold" data-k="trap"' + fo("trap") + '><summary><h3>重要提醒</h3></summary><ul class="txtrap">' + TX_TRAPS.map(t => '<li><b>' + esc(t[0]) + '</b><span>' + esc(t[1]) + '</span></li>').join("") + '</ul></details>' +
     '<details class="card txair txfold" data-k="air"' + fo("air") + '><summary><h3>我們的回程：中部機場 T2 <small>11/9 18:30</small></h3></summary>' +
-      '<ol class="txsteps"><li><b>先辦離境確認</b>：Visit Japan Web 線上辦（連海關專用 Wi-Fi），或到退稅機台刷護照</li><li><b>Completed／綠燈</b>就完成；<b>Not Completed／紅燈</b>到海關櫃台出示商品</li><li>確認完才<b>報到、托運</b></li><li>安檢、出境、登機</li></ol>' +
+      '<div class="txsec">離境確認有 2 種方式</div><div class="txpair"><div class="txpc a"><b>退稅機台</b>現場刷護照，不需要 Wi-Fi</div><div class="txpc a"><b>Visit Japan Web</b>手機操作，要連海關專用 Wi-Fi</div></div>' +
+      '<div class="txsec">出境前 5 步</div>' + stp(1, '先辦離境確認', '用機台或 VJW，在報到、托運之前完成') +
+      stp(2, '看結果', '綠燈（Completed）就完成；紅燈（Not Completed）到海關櫃台出示商品') +
+      '<div class="txpair"><div class="txpc g"><b>綠燈：完成</b>可以直接去報到、托運</div><div class="txpc r"><b>紅燈：要檢查</b>留在原地找海關人員，商品要拿得出來</div></div>' +
+      stp(3, '退稅方式', '符合資格後，再考慮要不要機場退現金。機場領現金不是每間商店都支援，沒有支援的再掃單據上的 QR Code 登錄信用卡退稅資料。<strong>現金退稅手續費為 1.1%（未滿 100 日圓捨去）</strong><strong>即便已經登錄信用卡，也還是能在機場臨時改拿現金</strong>') +
+      stp(4, '報到、托運', '確認完才托運行李') + stp(5, '安檢、出境、登機', '航班 21:15 起飛') +
       '<p class="hint">有人在其他機場實測沒用到 Wi-Fi 和 VJW，直接刷機台就好；兩種方式都準備著。詳細步驟與 Wi-Fi 密碼在 D5 行程。</p>' +
       '<button class="btn ghost" type="button" id="tx-d5">看 D5 機場步驟</button></details>' +
-    '<details class="card txfold" data-k="plat"' + fo("plat") + '><summary><h3>退稅平台與註冊眉角</h3></summary><p class="hint">每家店合作的平台不同，遇到新平台就註冊一次；同一平台註冊過，之後的購物會自動匯入。</p>' +
-      TX_PLAT.map(p => '<div class="txplat"><b>' + esc(p[0]) + '</b><span class="u">' + esc(p[1]) + '</span><span>' + esc(p[2]) + '</span></div>').join("") +
-      '<p class="hint">註冊都要掃護照，有些還要掃上陸許可貼紙；登記退款時要選對離境機場（中部国際空港）。</p></details>' +
-    '<details class="card txfold" data-k="refund"' + fo("refund") + '><summary><h3>退款方式</h3></summary><dl class="kv txkv">' +
-      '<dt>信用卡</dt><dd><b>最推薦</b>，有人實測約 7 天退回。綁卡通常要收台灣手機簡訊；持卡人要是註冊本人。</dd>' +
-      '<dt>現金</dt><dd>出境後有機台可操作領取。</dd>' +
-      '<dt>銀行轉帳</dt><dd>不支援新台幣；SWIFT 收美元要退款超過 100 萬日圓。</dd>' +
-      '<dt>電子支付</dt><dd>J-TaxRefund 可選。</dd></dl></details>' +
     '<details class="card txfold" data-k="fee"' + fo("fee") + '><summary><h3>各店手續費 <small>11/1 網友現場實測</small></h3></summary>' + feeHtml +
       '<p class="hint">除非標明含稅價，都以未稅價計算。＊GU 1%，UNIQLO 推測相同但未確認。唐吉訶德所屬 PPIH 集團已宣布退款不收手續費。費率可能調整，以當天店家和平台公告為準。</p>' +
-      '<p class="txformula">真正要比的是：售價 − 折扣／優惠券 ＋ 手續費</p></details>';
+      '<p class="txformula">真正要比的是：售價 − 折扣／優惠券 ＋ 手續費</p></details>' +
+    '<details class="card txfold" data-k="addr" id="tx-info"' + fo("addr") + '><summary><h3>地址中翻英 <small>只存在這支手機</small></h3></summary><div id="tx-info-b"></div></details>';
 
-  document.querySelectorAll(".txchk").forEach(c => c.addEventListener("change", () => {
-    const o = loadTx(); o[c.dataset.id] = c.checked; saveTx(o);
-    const d = c.closest(".txst"), all = d.querySelectorAll(".txchk"), n = [].filter.call(all, x => x.checked).length, el = d.querySelector(".txcnt");
-    el.textContent = n + "/" + all.length; el.classList.toggle("full", n === all.length);
-  }));
-  document.querySelectorAll(".txst").forEach(d => d.addEventListener("toggle", () => { if (d.open) TXO.open = d.dataset.st; }));
-  $("tx-reset").addEventListener("click", () => { saveTx({}); const y = window.scrollY; renderTax(); window.scrollTo(0, y); toast("已全部取消勾選"); });
   $("tx-d5").addEventListener("click", () => go(lastD));
   ["tf-10", "tf-8"].forEach(k => $(k).addEventListener("input", taxCalc)); document.querySelectorAll(".tfx").forEach(b => b.addEventListener("click", () => { const el = $(b.dataset.for); el.value = ""; taxCalc(); el.focus(); })); document.querySelectorAll('input[name="tf-m"]').forEach(r => r.addEventListener("change", taxCalc)); taxCalc();
   document.querySelectorAll(".txfold").forEach(d => d.addEventListener("toggle", () => { TXO.fold[d.dataset.k] = d.open; }));
@@ -1037,9 +1050,9 @@ function txParse(str) {
   return o;
 }
 function renderTxi() {
-  const box = $("tx-info"); if (!box) return;
+  const box = $("tx-info-b"); if (!box) return;
   const o = loadTxi();
-  box.innerHTML = '<h3>退稅填寫資料 <small>只存在這支手機</small></h3><p class="hint">退稅平台註冊要填英文地址：居住地址填台灣住家，不要填日本飯店。</p>' +
+  box.innerHTML = '<p class="hint">退稅平台註冊要填英文地址：居住地址填台灣住家，不要填日本飯店。</p>' +
     '<p class="hint">不會翻？<a href="https://www.post.gov.tw/post/internet/Postal/index.jsp?ID=207" target="_blank" rel="noopener">中華郵政「中文地址英譯」</a>輸入中文地址，把結果整串複製回來貼在下面。</p>' +
     '<label class="txraw">貼上中華郵政翻好的整串英文地址，自動拆進下面的格子<textarea id="tx-raw" rows="3" placeholder="例如 9 F., No. 30, Sec. 1, Chongqing S. Rd., Zhongzheng Dist., Taipei City 100509, Taiwan (R.O.C.)"></textarea></label><div class="btnrow"><button class="btn" type="button" id="tx-split">自動拆解填入</button></div>' +
     '<div class="txi">' + TXI_F.map(f => '<label>' + esc(f[1]) + '<span class="txin"><input type="text" data-k="' + f[0] + '" maxlength="80" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="' + esc(f[2]) + '" value="' + esc(o[f[0]] || "") + '"><button type="button" class="txcp" data-k="' + f[0] + '">複製</button></span></label>').join("") + '</div>' +
