@@ -255,6 +255,20 @@ input:focus-visible, select:focus-visible, .btn:focus-visible, .sb:focus-visible
 .plist li { grid-template-columns: minmax(0, 1fr) auto auto; } .plist .sub { font-size: .75rem; color: var(--muted); text-align: right; }
 .tfr { display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--line); padding-top: 10px; }
 .tfr .gl { font-size: .75rem; font-weight: 700; letter-spacing: .06em; color: var(--muted); }
+.tfr .tr { align-items: center; }
+.tfr .tr .rpb { margin-left: 0; flex: none; }
+.rpbox { border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.rpbox .gl { font-size: .75rem; font-weight: 700; letter-spacing: .06em; color: var(--muted); }
+.rpbox .gl small { font-weight: 400; letter-spacing: 0; }
+.rpl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: .9375rem; font-variant-numeric: tabular-nums; }
+.rpl li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 8px; align-items: center; }
+.rpl .d { font-size: .75rem; color: var(--muted); }
+.rpl .del { width: 28px; height: 28px; }
+.rpd > summary { cursor: pointer; font-size: .875rem; color: var(--accent); font-weight: 700; }
+.rpf { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.rpf label { display: flex; flex-direction: column; gap: 4px; font-size: .8125rem; color: var(--muted); min-width: 0; }
+.rpf label:nth-child(3), .rpf .btn { grid-column: 1 / -1; }
+.rpf select, .rpf input { width: 100%; min-width: 0; font-size: 1rem; }
 .tfr .tr { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
 .btnrow { display: flex; gap: 8px; } .btnrow .btn { flex: 1; }
 .hbtns { display: flex; gap: 6px; margin-left: auto; }
@@ -527,7 +541,7 @@ const TAKAYAMA = { name: "桑雅博爾恩旅舍 Thai Restaurant & Guest House TH
 const TRIP = {
   start: "2026-11-05",      // 第 1 天的日期（YYYY-MM-DD）
   isSample: true,           // 換成實際行程後改成 false
-  updated: "2026-11-03 13:53",
+  updated: "2026-11-04 09:28",
   weatherSrc: "預報（11/2 更新）",
   days: [
     { title: "抵達夜", route: ["airport","nagoya"], weather: { items: [{ p: "名古屋", lo: 14, hi: 20, icon: "rain", short: "雨後轉晴", rain: "90%", desc: "白天有雨後轉晴，降雨機率約 90%；傍晚落地時雨可能已停" }], tip: "降雨機率高，帶折疊傘或雨衣；傍晚後氣溫偏低，加件薄外套" }, stay: HOTEL, note: "傍晚才落地，今晚只要平安進飯店、吃點東西", stops: [
@@ -1112,7 +1126,7 @@ function renderTxr() {
 /* ===== 記帳（公帳 / 個人） ===== */
 const LEDGER = 99;
 const CATS = ["餐飲", "交通", "住宿", "購物", "門票", "其他"];
-const L = { mode: "pub", pub: [], mine: [], members: [], meta: {}, myBudget: 0, me: null, db: null, user: null, dl: null, canWrite: null, avail: null, msg: "", busy: false, tok: 0, edit: null, joined: false, shopPub: [], shopMine: [], shopMode: "pub", shopKind: "shop", shopBuilt: false, formKey: "", names: {} };
+const L = { mode: "pub", pub: [], rp: [], mine: [], members: [], meta: {}, myBudget: 0, me: null, db: null, user: null, dl: null, canWrite: null, avail: null, msg: "", busy: false, tok: 0, edit: null, joined: false, shopPub: [], shopMine: [], shopMode: "pub", shopKind: "shop", shopBuilt: false, formKey: "", names: {} };
 const yen = n => "¥" + Math.round(n).toLocaleString("ja-JP");
 const twdOf = (r, rate) => r.cur === "TWD" ? Number(r.orig) || 0 : (Number(r.fx) > 0 ? Math.round((Number(r.amount) || 0) * Number(r.fx)) : (rate > 0 ? Math.round((Number(r.amount) || 0) * rate) : null));
 const todayStr = () => ymd(new Date());
@@ -1130,6 +1144,7 @@ async function initLedger() {
     L.avail = true;
     const onErr = e => { L.msg = "讀取失敗：" + (e && e.code ? e.code : "未知錯誤"); ledgerRefresh(); };
     db.collection("ledger").onSnapshot(s => { L.pub = s.docs.map(d => Object.assign({ id: d.id }, d.data())); ledgerRefresh(); }, onErr);
+    db.collection("repay").onSnapshot(s => { L.rp = s.docs.map(d => Object.assign({ id: d.id }, d.data())); ledgerRefresh(); }, onErr);
     db.collection("shop").onSnapshot(s => { L.shopPub = s.docs.map(d => Object.assign({ id: d.id }, d.data())); shopRefresh(); }, onErr);
     db.doc("meta/settings").onSnapshot(s => { L.meta = s.exists ? s.data() : {}; ledgerRefresh(); }, onErr);
     if (myId()) db.collection("data/users/" + myId()).onSnapshot(s => {
@@ -1144,7 +1159,7 @@ async function initLedger() {
 const sortEntries = a => a.slice().sort((x, y) => String(y.date || "").localeCompare(String(x.date || "")) || (y.createdAt || 0) - (x.createdAt || 0));
 const splitOf = e => ((Array.isArray(e.split) && e.split.length) ? e.split : (e.payer ? [e.payer] : [])).map(who);
 
-function calc(rows, pub) {
+function calc(rows, pub, rp) {
   const r = { total: 0, cat: {}, paid: {}, share: {}, net: {}, transfers: [] };
   rows.forEach(e => {
     const a = Number(e.amount) || 0; r.total += a; r.cat[e.cat || "其他"] = (r.cat[e.cat || "其他"] || 0) + a;
@@ -1152,6 +1167,7 @@ function calc(rows, pub) {
     const sp = splitOf(e), py = who(e.payer); if (py) { r.paid[py] = (r.paid[py] || 0) + a; r.net[py] = (r.net[py] || 0) + a; }
     sp.forEach(id => { r.share[id] = (r.share[id] || 0) + a / sp.length; r.net[id] = (r.net[id] || 0) - a / sp.length; });
   });
+  if (pub) (rp || []).forEach(x => { const a = Number(x.amount) || 0, f = who(x.from), t = who(x.to); if (a > 0 && f && t) { r.net[f] = (r.net[f] || 0) + a; r.net[t] = (r.net[t] || 0) - a; } });
   const cr = [], de = [];
   Object.keys(r.net).forEach(id => { const v = Math.round(r.net[id]); if (v > 0) cr.push([id, v]); else if (v < 0) de.push([id, -v]); });
   cr.sort((a, b) => b[1] - a[1]); de.sort((a, b) => b[1] - a[1]);
@@ -1264,6 +1280,30 @@ function fxRefresh() {
   if (r && $("fx-j").value !== "") fxCalc("j");
 }
 
+const RP_OPEN = { v: false };
+function rpHtml(people) {
+  const list = (L.rp || []).slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)), w = L.canWrite !== false;
+  const opt = sel => people.map((id, i) => '<option value="' + esc(id) + '"' + (i === sel ? " selected" : "") + '>' + esc(id) + '</option>').join("");
+  return '<div class="rpbox"><div class="gl">已還款紀錄 <small>' + list.length + ' 筆</small></div>' +
+    (list.length ? '<ul class="rpl">' + list.map(x => '<li><span class="d">' + esc(x.date || "") + '</span><span>' + esc(who(x.from)) + ' → ' + esc(who(x.to)) + '</span><b>' + yen(Number(x.amount) || 0) + '</b>' + (w ? '<button class="del rpdel" type="button" data-id="' + esc(x.id) + '" aria-label="刪除">×</button>' : '') + '</li>').join("") + '</ul>' : '<div class="hint">還沒有紀錄。收到款項後，按上面的「已還款」，或用下面的表單記部分金額。</div>') +
+    (w ? '<details class="rpd"' + (RP_OPEN.v ? " open" : "") + '><summary>記一筆部分還款</summary><div class="rpf"><label>誰還<select id="rp-f">' + opt(0) + '</select></label><label>還給誰<select id="rp-t">' + opt(Math.min(1, people.length - 1)) + '</select></label><label>金額（日圓）<input id="rp-a" type="number" min="1" step="1" inputmode="numeric" placeholder="例如 3000"></label><button class="btn" type="button" id="rp-add">記錄已還款</button></div></details>' : '') + '</div>';
+}
+async function addRepay(from, to, amount) {
+  if (!L.db || L.busy) return;
+  amount = Math.round(Number(amount)); if (!from || !to || from === to || !(amount > 0)) { toast("請選不同的兩個人，並填金額"); return; }
+  L.busy = true;
+  try { if (!myId()) throw { code: "no_id" }; await L.db.collection("repay").add({ from, to, amount, date: todayStr(), createdAt: Date.now(), by: myId() }); toast("已記錄：" + from + " 還給 " + to + " " + yen(amount)); }
+  catch (e) { L.msg = (e && (e.code === "invalid_argument" || e.code === "no_id")) ? "沒有記帳權限，請建立者在「分享」把你設為協作者。" : "儲存失敗，請稍後再試（" + ((e && e.code) || "未知") + "）。"; }
+  L.busy = false; ledgerRefresh();
+}
+function rpBind() {
+  const box = $("l-settle"); if (!box) return;
+  box.querySelectorAll(".rpb").forEach(b => b.addEventListener("click", () => addRepay(b.dataset.f, b.dataset.t, b.dataset.a)));
+  box.querySelectorAll(".rpdel").forEach(b => b.addEventListener("click", async () => { try { await L.db.collection("repay").doc(b.dataset.id).delete(); toast("已刪除"); } catch (e) { L.msg = "刪除失敗（" + ((e && e.code) || "未知") + "）。"; ledgerRefresh(); } }));
+  const d = box.querySelector(".rpd"); if (d) d.addEventListener("toggle", () => { RP_OPEN.v = d.open; });
+  const ad = $("rp-add"); if (ad) ad.addEventListener("click", () => addRepay($("rp-f").value, $("rp-t").value, $("rp-a").value));
+}
+
 function ledgerRefresh() {
   if (cur !== LEDGER || !$("l-sum")) return;
   fxRefresh();
@@ -1273,7 +1313,7 @@ function ledgerRefresh() {
   const secs = ["l-sum", "l-settle", "l-stat", "l-form", "l-list"].map($);
   if (L.avail === false) { secs.forEach(s => { s.hidden = true; }); return; }
   secs.forEach(s => { s.hidden = false; }); $("l-settle").hidden = !pub;
-  const rows = sortEntries(pub ? L.pub : L.mine), c = calc(rows, pub), tok = ++L.tok;
+  const rows = sortEntries(pub ? L.pub : L.mine), c = calc(rows, pub, L.rp), tok = ++L.tok;
   const go2 = ps => {
     if (tok !== L.tok) return;
     const rate = Number(L.meta.rate) > 0 ? Number(L.meta.rate) : 0, bud = pub ? (Number(L.meta.budget) || 0) : (Number(L.myBudget) || 0);
@@ -1289,10 +1329,11 @@ function ledgerRefresh() {
       if (!rows.length) st += '<div class="empty">記了第一筆公帳後，這裡會算出誰該補給誰。</div>';
       else {
         st += '<ul class="plist">' + people.map(id => { const n = Math.round(c.net[id] || 0); return '<li><span>' + esc(id) + '</span><span class="sub">先付 ' + yen(c.paid[id] || 0) + ' · 應分攤 ' + yen(c.share[id] || 0) + '</span><b class="' + (n >= 0 ? "pos" : "neg") + '">' + (n >= 0 ? "+" : "−") + yen(Math.abs(n)) + '</b></li>'; }).join("") + '</ul>' +
-          (c.transfers.length ? '<div class="tfr"><div class="gl">建議這樣結清</div>' + c.transfers.map(t => '<div class="tr"><span>' + esc(t[0]) + ' → ' + esc(t[1]) + '</span><b>' + yen(t[2]) + '</b></div>').join("") + '</div>' : '<div class="hint">目前已經結清。</div>') +
+          (c.transfers.length ? '<div class="tfr"><div class="gl">建議這樣結清</div>' + c.transfers.map(t => '<div class="tr"><span>' + esc(t[0]) + ' → ' + esc(t[1]) + '</span><b>' + yen(t[2]) + '</b>' + (L.canWrite === false ? '' : '<button class="btn ghost sm rpb" type="button" data-f="' + esc(t[0]) + '" data-t="' + esc(t[1]) + '" data-a="' + t[2] + '">已還款</button>') + '</div>').join("") + '</div>' : '<div class="hint">目前已經結清。</div>') +
+          rpHtml(people) +
           '<div class="hint">正數是別人要補給他，負數是他要補。</div>';
       }
-      $("l-settle").innerHTML = st;
+      $("l-settle").innerHTML = st; rpBind();
     }
     // 統計
     const cats = Object.keys(c.cat).sort((a, b) => c.cat[b] - c.cat[a]), mx = cats.length ? c.cat[cats[0]] : 1;
