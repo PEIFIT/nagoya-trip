@@ -541,8 +541,8 @@ const TAKAYAMA = { name: "桑雅博爾恩旅舍 Thai Restaurant & Guest House TH
 const TRIP = {
   start: "2026-11-05",      // 第 1 天的日期（YYYY-MM-DD）
   isSample: true,           // 換成實際行程後改成 false
-  updated: "2026-11-06 21:17",
-  weatherSrc: "預報（11/6 更新）",
+  updated: "2026-11-08 00:40",
+  weatherSrc: "預報（11/7 06:00 發布）",
   days: [
     { title: "抵達夜", route: ["airport","nagoya"], weather: { items: [{ p: "名古屋", lo: 15, hi: 22, icon: "rain", short: "多雲後雨", rain: "90%", desc: "多雲後轉雨，降雨機率約 90%；晚上抵達時可能正在下雨" }], tip: "晚上落地後多半會遇到雨，帶折疊傘或雨衣；夜間偏涼，加件薄外套" }, stay: HOTEL, note: "晚上 20:10 才落地（航班延誤），今晚只要平安進飯店、吃點東西", stops: [
       { t: "16:25", n: "桃園機場 T1 起飛（延誤）", jp: "IT706 TPE → NGO", note: "台灣虎航 IT706 延誤：表定 15:05，預定 16:25 起飛；預定 20:10 抵達名古屋 T2（表定 18:50）。時間可能再變，出門前請到虎航官網「航班動態」確認", k: "move", q: "桃園國際機場 第一航廈" },
@@ -611,7 +611,7 @@ const TRIP = {
       { t: "20:00", n: "飯店入住", jp: "MANGA ART HOTEL, NAGOYA MARUNOUCHI", note: "先放行李再去吃飯", k: "move", q: "MANGA ART HOTEL NAGOYA MARUNOUCHI 名古屋市中区丸の内1丁目9-5" },
       { t: "20:45", n: "晚餐：Hayabusa Honten", jp: "名古屋市中村区竹橋町15-14（〒453-0016）", note: "是否需要訂位請自行確認；若搭 Hida 20 號，抵達後約 22:00 才吃，仍在營業時間內", h: "11:30–14:30、17:30–02:30", k: "eat", q: "Hayabusa Honten 愛知県名古屋市中村区竹橋町15-14" }
     ]},
-    { title: "熱田・大須・榮", route: ["nagoya"], weather: { items: [{ p: "名古屋", lo: 9, hi: 18, icon: "suncloud", short: "晴後轉陰", rain: "30%", desc: "晴後轉陰，早晚冷，日夜溫差約 9 度" }], tip: "早上約 9°C、白天 18°C，洋蔥式穿搭；晚上看夜景再加一件" }, stay: HOTEL, note: "今天集中在名古屋市區，11/8 是星期日；HARBS 蛋糕外帶，帶去看夜景或回飯店吃", stops: [
+    { title: "熱田・大須・榮", route: ["nagoya"], weather: { items: [{ p: "名古屋", lo: 9, hi: 19, icon: "suncloud", short: "晴後轉陰", rain: "30%", desc: "上午晴，下午轉陰，降雨機率下午約 40%；日夜溫差約 10 度" }], tip: "早上約 9°C、白天 19°C，洋蔥式穿搭；下午起天色轉陰，帶折疊傘備用；晚上看夜景再加一件" }, stay: HOTEL, note: "今天集中在名古屋市區，11/8 是星期日；HARBS 蛋糕外帶，帶去看夜景或回飯店吃", stops: [
       { t: "08:30", n: "早餐：Tsubame Bread & Milk", jp: "名古屋市中村区名駅4-26-25 メイフィス名駅 1階", note: "名駅分店，麵包與牛奶", h: "08:00–20:00", k: "eat", q: "Tsubame Bread & Milk 名駅 メイフィス名駅" },
       { t: "09:45", n: "前往熱田神宮", jp: "名鉄名古屋駅 → 神宮前駅", note: "從 Tsubame 走到名鐵名古屋站，搭名鐵到神宮前約 10 分鐘，再步行約 3 分鐘到神宮西側入口；也可搭 JR 到熱田站", k: "move", q: "神宮前駅" },
       { t: "10:15", n: "熱田神宮", jp: "名古屋市熱田区神宮1丁目1-1", note: "境內很大、樹林多，慢慢走約 1.5 小時；本宮、草薙神劍的傳說、信長塀都在境內。上午人較少", k: "go", q: "熱田神宮" },
@@ -624,7 +624,7 @@ const TRIP = {
       { t: "18:45", n: "MIRAI TOWER（名古屋電視塔）", jp: "名古屋テレビ塔／久屋大通公園", note: "拍照、看夜景；觀景台營業時間請再確認", k: "go", q: "MIRAI TOWER 名古屋テレビ塔" },
       { t: "19:45", n: "綠洲 21", jp: "オアシス21（水の宇宙船）", note: "就在電視塔旁，夜間燈光漂亮；營業時間請再確認。逛完走路或搭地鐵回飯店", k: "go", q: "オアシス21" }
     ]},
-    { title: "犬山・晚上回程", route: ["nagoya","inuyama","nagoya","airport"], weather: { items: [{ p: "名古屋", lo: 10, hi: 18, icon: "rain", short: "多雲後雨", rain: "60%", desc: "多雲後轉雨，降雨機率約 60%，下午起可能下雨" }], tip: "帶折疊傘；戶外行程盡量排在上午，下午去機場前以室內為主" }, stay: null, note: "21:15 才起飛，白天還有完整時間，行李先寄放在名鐵站；回程電車建議搭 17:18 或之後", stops: [
+    { title: "犬山・晚上回程", route: ["nagoya","inuyama","nagoya","airport"], weather: { items: [{ p: "名古屋", lo: 12, hi: 18, icon: "cloud", short: "多雲", rain: "40%", desc: "多雲，降雨機率約 40%；比先前預報的下雨好一些，但仍可能有雨" }], tip: "帶折疊傘；氣溫舒適，薄外套即可" }, stay: null, note: "21:15 才起飛，白天還有完整時間，行李先寄放在名鐵站；回程電車建議搭 17:18 或之後", stops: [
       { t: "08:00", n: "退房、寄放行李", jp: "MANGA ART HOTEL → 名鉄名古屋駅", note: "飯店不能寄放，退房後帶行李到名鐵名古屋站置物櫃或寄放處", k: "move", q: "名鉄名古屋駅 コインロッカー" },
       { t: "08:45", n: "早餐：咖啡店 KAKO 柳橋店", jp: "名古屋市中村区名駅5-30-4 名駅KDビル", note: "名古屋式早餐", h: "07:00–17:00", k: "eat", q: "喫茶 KAKO 柳橋店 名駅5-30-4" },
       { t: "09:45", n: "前往犬山", jp: "名鉄名古屋駅 → 犬山駅", note: "搭名鐵特急約 30 分鐘；午餐可在犬山城下町解決", k: "move", q: "名鉄名古屋駅" },
@@ -836,7 +836,7 @@ function wxStrip() {
       '<span class="wt"><b>' + it.hi + '°</b> <small>' + it.lo + '°</small></span><span class="ws">' + esc(it.short || "") + '</span>' +
       '<span class="wr2">降雨 ' + (it.rain != null ? esc(it.rain) : "—") + '</span>' + (sec ? '<span class="w2">' + esc(sec.p) + ' ' + sec.lo + '–' + sec.hi + '°</span>' : '') + '</div>'; }).join("") + '</div>';
 }
-const SRC_NOTE = "資料來自 tenki.jp（名古屋）和 Weathernews（高山、白川鄉），11/6 晚上更新。11/9 的可信度偏低，行程中仍會變動。";
+const SRC_NOTE = "資料來自 tenki.jp（名古屋）和 Weathernews（高山、白川鄉），11/7 早上發布。11/9 的可信度偏低，行程中仍會變動。";
 function wxItems(w) { return w.items.map(it => '<span class="wi"><b>' + esc(it.p) + '</b> <span class="deg">' + it.lo + '–' + it.hi + '°C</span> <span class="wd">' + esc(it.desc) + '</span></span>').join(""); }
 function wxCard(w) {
   if (!w) return "";
